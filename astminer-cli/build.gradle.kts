@@ -1,5 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import tanvd.kosogor.proxy.publishJar
 import tanvd.kosogor.proxy.shadowJar
 
@@ -15,17 +15,16 @@ application {
 }
 
 group = "io.github.vovak.astminer"
-version = "0.2"
+version = "0.3"
 
 repositories {
     mavenCentral()
-    maven(url = "https://dl.bintray.com/egor-bogomolov/astminer/")
+    maven(url = "https://dl.bintray.com/shibby09/astminer")
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    // TODO: change version
-    compile("io.github.vovak.astminer", "astminer-dev", "0.5.2")
+    compile("io.github.shibby09.astminer", "astminer-dev", "0.5.4")
     compile("com.github.ajalt", "clikt", "2.1.0")
 }
 
@@ -53,8 +52,8 @@ publishJar {
         repository = "astminer"
 
         info {
-            githubRepo = "vovak/astminer"
-            vcsUrl = "https://github.com/vovak/astminer/astminer-cli"
+            githubRepo = "shibby09/astminer"
+            vcsUrl = "https://github.com/shibby09/astminer/astminer-cli"
             labels.addAll(listOf("mining", "ast", "ml4se", "code2vec", "path-based representations"))
             license = "MIT"
             description = "CLI for AstMiner library"

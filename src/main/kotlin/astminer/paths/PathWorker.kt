@@ -3,6 +3,7 @@ package astminer.paths
 import astminer.common.model.ASTPath
 import astminer.common.model.Node
 import astminer.common.postOrderIterator
+import astminer.parse.java.NamedGumTreeJavaNode
 
 class PathWorker {
 
@@ -73,5 +74,18 @@ class PathWorker {
             }
         }
         return paths
+    }
+
+    fun retrieveVariablePaths(tree: Node, maxHeight: Int, maxWidth: Int, filePath: String): Map<String, Collection<ASTPath>> {
+        val paths = retrievePaths(tree, maxHeight, maxWidth)
+        val variablePaths = mutableMapOf<String, Collection<ASTPath>>()
+        val allVariableDeclarationNodes = tree.getDescendantsOfType(NamedGumTreeJavaNode.Companion.TypeLabels.allVarDeclarations)
+        for (node in allVariableDeclarationNodes) {
+            variablePaths.put(
+                    "$filePath::${node.getMetadata(NamedGumTreeJavaNode.SIMPLE_NAME)}::${node.getMetadata(NamedGumTreeJavaNode.LINE)}",
+                    paths.filter { it.downwardNodes.contains(node) or it.upwardNodes.contains(node) }
+            )
+        }
+        return variablePaths
     }
 }

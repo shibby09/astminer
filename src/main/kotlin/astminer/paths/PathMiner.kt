@@ -11,4 +11,8 @@ class PathMiner(val settings: PathRetrievalSettings) {
     fun retrievePaths(tree: Node): Collection<ASTPath> {
         return pathWorker.retrievePaths(tree, settings.maxHeight, settings.maxWidth)
     }
+
+    fun retrieveVariablePaths(tree: Node, filePath: String): Map<String, Collection<ASTPath>> {
+        return pathWorker.retrieveVariablePaths(tree, settings.maxHeight, settings.maxWidth, filePath);
+    }
 }

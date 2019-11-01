@@ -1,7 +1,7 @@
 import tanvd.kosogor.proxy.publishJar
 
-group = "io.github.vovak.astminer"
-version = "0.5.2"
+group = "io.github.shibby09.astminer"
+version = "0.5.4"
 
 plugins {
     id("java")
@@ -101,13 +101,11 @@ publishJar {
     }
 
     bintray {
-
         // If username and secretKey not set, will be taken from System environment param `bintray_user`, 'bintray_key'
         repository = "astminer"
-
         info {
-            githubRepo = "vovak/astminer"
-            vcsUrl = "https://github.com/vovak/astminer"
+            githubRepo = "shibby09/astminer"
+            vcsUrl = "https://github.com/shibby09/astminer"
             labels.addAll(listOf("mining", "ast", "ml4se", "code2vec", "path-based representations"))
             license = "MIT"
             description = "Extract AST, AST-related metrics, and path-based representations from source code"

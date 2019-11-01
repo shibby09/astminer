@@ -6,10 +6,8 @@ import astminer.common.model.Node
 import astminer.common.model.Parser
 import astminer.common.preOrder
 import astminer.common.setNormalizedToken
-import astminer.parse.antlr.java.JavaParser
-import astminer.parse.antlr.python.PythonParser
-import astminer.parse.cpp.FuzzyCppParser
-import astminer.paths.Code2VecPathStorage
+import astminer.parse.java.NamedGumTreeJavaParser
+import astminer.paths.CsvPathStorage
 import astminer.paths.PathMiner
 import astminer.paths.PathRetrievalSettings
 import astminer.paths.toPathContext
@@ -22,7 +20,7 @@ import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.long
 import java.io.File
 
-class PathContextsExtractor : CliktCommand() {
+class VariablePathContextsExtractor : CliktCommand() {
 
     /**
      * @param parser class that implements parsing
@@ -34,10 +32,7 @@ class PathContextsExtractor : CliktCommand() {
      * List of supported language extensions and corresponding parsers.
      */
     private val supportedLanguages = listOf(
-        SupportedLanguage(JavaParser(), "java"),
-        SupportedLanguage(FuzzyCppParser(), "c"),
-        SupportedLanguage(FuzzyCppParser(), "cpp"),
-        SupportedLanguage(PythonParser(), "py")
+        SupportedLanguage(NamedGumTreeJavaParser(), "java")
     )
 
     val extensions: List<String> by option(
@@ -90,11 +85,11 @@ class PathContextsExtractor : CliktCommand() {
         throw UnsupportedOperationException("Unsupported extension $extension")
     }
 
-    private fun extractPathContexts() {
+    fun extractVariablePathContexts() {
         val outputDir = File(outputDirName)
         for (extension in extensions) {
             val miner = PathMiner(PathRetrievalSettings(maxPathHeight, maxPathWidth))
-            val storage = Code2VecPathStorage(outputDirName)
+            val storage = CsvPathStorage(outputDirName)
             val parser = getParser(extension)
             val parsedFiles = parser.parseWithExtension(File(projectRoot), extension)
 
@@ -104,23 +99,25 @@ class PathContextsExtractor : CliktCommand() {
 
                 root.preOrder().forEach { node -> node.setNormalizedToken() }
 
-                val paths = miner.retrievePaths(root).take(maxPathContexts)
-                storage.store(LabeledPathContexts(filePath, paths.map { astPath ->
-                    toPathContext(astPath) { node ->
-                        node.getNormalizedToken()
-                    }
-                }))
+                val paths = miner.retrieveVariablePaths(root, filePath)
+
+                for ((key, value) in paths) {
+                    storage.store(LabeledPathContexts(key, value.take(maxPathContexts).map { astPath ->
+                        toPathContext(astPath) { node ->
+                            node.getNormalizedToken()
+                        }
+                    }))
+                }
             }
 
             val outputDirForLanguage = outputDir.resolve(extension)
             outputDirForLanguage.mkdir()
             // Save stored data on disk
-            // TODO: implement batches for path context extraction
             storage.save(maxPaths, maxTokens)
         }
     }
 
     override fun run() {
-        extractPathContexts()
+        extractVariablePathContexts()
     }
 }

@@ -27,6 +27,17 @@ interface Node {
 
     fun getChildrenOfType(typeLabel: String) = getChildren().filter { it.getTypeLabel() == typeLabel }
     fun getChildOfType(typeLabel: String) = getChildrenOfType(typeLabel).firstOrNull()
+    fun getDescendantsOfType(typeLabels: Set<String>): List<Node> {
+        return getChildrenRecursive(this).filter {
+            it.getTypeLabel() in typeLabels
+        }
+    }
+
+    private fun getChildrenRecursive(node: Node): List<Node> {
+        val children = node.getChildren().toMutableList()
+        children.addAll(children.map { getChildrenRecursive(it) }.flatten())
+        return children
+    }
 }
 
 interface Parser<T : Node> {
